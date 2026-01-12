@@ -6,7 +6,7 @@ This file contains recommended settings for the plansm GitHub repository.
 
 **Description**:
 ```
-Machine-verifiable planning for LLMs. No fake completion - tests must pass. Zero install: just copy files.
+Machine-verified planning for Claude Code. Zero install: cp files + jq. LLMs can't fake completion - tests must pass.
 ```
 
 **Website** (optional):
@@ -16,16 +16,14 @@ https://github.com/spytensor/plansm
 
 **Topics** (tags):
 ```
+claude-code
 llm
-claude
 planning
 verification
-testing
 automation
-claude-code
-state-machine
 proof-based
 shell-scripts
+testing
 ```
 
 ## Repository Details
