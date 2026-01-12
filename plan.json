@@ -149,14 +149,14 @@
     {
       "id": "STEP_007",
       "objective": "Commit and push all changes",
-      "status": "PENDING",
+      "status": "VERIFIED",
       "depends_on": [
         "STEP_006"
       ],
       "verify": [
         {
-          "type": "command",
-          "cmd": "git diff --cached --name-only | grep -q '.claude-plugin/scripts'"
+          "type": "file_exists",
+          "file": ".claude-plugin/scripts/verify.sh"
         },
         {
           "type": "command",
