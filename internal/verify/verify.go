@@ -11,7 +11,7 @@ import (
     "strings"
     "time"
 
-    "github.com/example/plansm/internal/plan"
+    "github.com/spytensor/plansm/internal/plan"
 )
 
 type RuleResult struct {

@@ -8,8 +8,8 @@ import (
     "path/filepath"
     "strings"
 
-    "github.com/example/plansm/internal/plan"
-    "github.com/example/plansm/internal/verify"
+    "github.com/spytensor/plansm/internal/plan"
+    "github.com/spytensor/plansm/internal/verify"
 )
 
 const defaultPlanPath = "plan.json"
@@ -370,35 +370,13 @@ func installClaudeProjectFiles(projectDir string) error {
         return os.WriteFile(filepath.Join(cmdsDir, name), []byte(body), 0644)
     }
 
-    if err := write("pwork.md", `---
-description: Show the current step (low token).
----
-Run: \`plansm current\`
+    if err := write("pwork.md", "---\ndescription: Show the current step (low token).\n---\nRun: `plansm current`\n\nRules:\n- Do NOT edit plan.json status fields manually.\n- Only work on CURRENT_STEP.\n"); err != nil { return err }
 
-Rules:
-- Do NOT edit plan.json status fields manually.
-- Only work on CURRENT_STEP.
-`); err != nil { return err }
+    if err := write("pverify.md", "---\ndescription: Verify current step proofs (machine gate).\n---\nRun: `plansm verify --current`\n\nIf this fails, do NOT claim completion. Fix the root cause and run again.\n"); err != nil { return err }
 
-    if err := write("pverify.md", `---
-description: Verify current step proofs (machine gate).
----
-Run: \`plansm verify --current\`
+    if err := write("pstatus.md", "---\ndescription: Show plan status table.\n---\nRun: `plansm status`\n"); err != nil { return err }
 
-If this fails, do NOT claim completion. Fix the root cause and run again.
-`); err != nil { return err }
-
-    if err := write("pstatus.md", `---
-description: Show plan status table.
----
-Run: \`plansm status\`
-`); err != nil { return err }
-
-    if err := write("pnext.md", `---
-description: Advance to next step (only if current step is VERIFIED).
----
-Run: \`plansm advance\`
-`); err != nil { return err }
+    if err := write("pnext.md", "---\ndescription: Advance to next step (only if current step is VERIFIED).\n---\nRun: `plansm advance`\n"); err != nil { return err }
 
     // Plugin skeleton for open-source distribution
     pluginDir := filepath.Join(projectDir, ".claude-plugin")

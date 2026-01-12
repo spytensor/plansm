@@ -1,3 +1,5 @@
-module github.com/example/plansm
+module github.com/spytensor/plansm
 
-go 1.22
+go 1.21
+
+toolchain go1.23.4

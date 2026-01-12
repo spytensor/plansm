@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "current_step": "STEP_001",
+  "invariants": [
+    "Do not mark VERIFIED without running plansm verify.",
+    "Only work on current_step unless explicitly unlocked.",
+    "Run tests before advancing."
+  ],
+  "steps": [
+    {
+      "id": "STEP_001",
+      "objective": "Initialize Node.js project with Express",
+      "status": "PENDING",
+      "allow_paths": ["package.json", "package-lock.json"],
+      "verify": [
+        {
+          "type": "file_exists",
+          "file": "package.json"
+        },
+        {
+          "type": "file_contains",
+          "file": "package.json",
+          "pattern": "express"
+        }
+      ]
+    },
+    {
+      "id": "STEP_002",
+      "objective": "Create basic Express server",
+      "status": "LOCKED",
+      "depends_on": ["STEP_001"],
+      "allow_paths": ["src/**"],
+      "verify": [
+        {
+          "type": "file_exists",
+          "file": "src/server.js"
+        },
+        {
+          "type": "file_contains",
+          "file": "src/server.js",
+          "pattern": "const express = require|import express"
+        },
+        {
+          "type": "file_contains",
+          "file": "src/server.js",
+          "pattern": "app.listen\\(|app.listen \\("
+        }
+      ]
+    },
+    {
+      "id": "STEP_003",
+      "objective": "Add health check endpoint",
+      "status": "LOCKED",
+      "depends_on": ["STEP_002"],
+      "allow_paths": ["src/**"],
+      "verify": [
+        {
+          "type": "file_contains",
+          "file": "src/server.js",
+          "pattern": "/health"
+        },
+        {
+          "type": "command",
+          "cmd": "node src/server.js & SERVER_PID=$! && sleep 2 && curl -f http://localhost:3000/health && kill $SERVER_PID",
+          "expect": {
+            "exit_code": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "STEP_004",
+      "objective": "Implement users API with tests",
+      "status": "LOCKED",
+      "depends_on": ["STEP_003"],
+      "allow_paths": ["src/**", "tests/**", "package.json"],
+      "verify": [
+        {
+          "type": "file_exists",
+          "file": "src/routes/users.js"
+        },
+        {
+          "type": "file_exists",
+          "file": "tests/users.test.js"
+        },
+        {
+          "type": "command",
+          "cmd": "npm test",
+          "expect": {
+            "exit_code": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "STEP_005",
+      "objective": "Add integration tests for all endpoints",
+      "status": "LOCKED",
+      "depends_on": ["STEP_004"],
+      "allow_paths": ["tests/**"],
+      "verify": [
+        {
+          "type": "file_exists",
+          "file": "tests/integration.test.js"
+        },
+        {
+          "type": "command",
+          "cmd": "npm test -- integration",
+          "expect": {
+            "exit_code": 0,
+            "stdout_regex": "integration"
+          }
+        }
+      ]
+    }
+  ]
+}

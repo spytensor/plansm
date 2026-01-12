@@ -1,0 +1,68 @@
+#!/bin/bash
+# plansm pre-commit hook
+# Prevents manual editing of plan.json status fields
+
+# This hook prevents users from manually changing:
+# - "status" fields in steps
+# - "current_step" field
+# Only plansm CLI should modify these fields
+
+set -e
+
+# Check if plan.json is being committed
+if ! git diff --cached --name-only | grep -q "plan.json"; then
+    exit 0
+fi
+
+echo "🔍 Checking plan.json for manual status edits..."
+
+# Get the staged plan.json
+STAGED_PLAN=$(git show :plan.json)
+
+# Get the last committed plan.json (if it exists)
+if git rev-parse HEAD >/dev/null 2>&1; then
+    LAST_PLAN=$(git show HEAD:plan.json 2>/dev/null || echo "{}")
+else
+    # First commit
+    LAST_PLAN="{}"
+fi
+
+# Check if status fields were manually changed
+# This is a simple check - you can make it more sophisticated
+
+# Extract current_step from both versions
+STAGED_CURRENT=$(echo "$STAGED_PLAN" | grep '"current_step"' | head -1 || echo "")
+LAST_CURRENT=$(echo "$LAST_PLAN" | grep '"current_step"' | head -1 || echo "")
+
+# Extract all status fields
+STAGED_STATUSES=$(echo "$STAGED_PLAN" | grep '"status"' | sort || echo "")
+LAST_STATUSES=$(echo "$LAST_PLAN" | grep '"status"' | sort || echo "")
+
+# If there are changes to status or current_step, warn the user
+if [ "$STAGED_STATUSES" != "$LAST_STATUSES" ] || [ "$STAGED_CURRENT" != "$LAST_CURRENT" ]; then
+    echo "⚠️  WARNING: plan.json status or current_step has changed"
+    echo ""
+    echo "Status and current_step should only be modified by:"
+    echo "  - plansm verify (sets status to VERIFIED/FAILED)"
+    echo "  - plansm advance (updates current_step)"
+    echo ""
+    echo "If you manually edited these fields, this may bypass verification."
+    echo ""
+    echo "To proceed anyway, use: git commit --no-verify"
+    echo "To abort, press Ctrl+C"
+    echo ""
+
+    # You can make this blocking by uncommenting:
+    # exit 1
+
+    # Or make it a warning with confirmation:
+    read -p "Continue commit? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Commit aborted."
+        exit 1
+    fi
+fi
+
+echo "✅ plan.json check passed"
+exit 0
