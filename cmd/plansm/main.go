@@ -181,7 +181,7 @@ func cmdVerify(args []string) {
     current := fs.Bool("current", false, "verify current step")
     all := fs.Bool("all", false, "verify all PENDING/FAILED steps (in order)")
     asJSON := fs.Bool("json", false, "json output")
-    fs.Parse(args)
+    _ = fs.Parse(args)
 
     if (*current && *all) || (!*current && !*all) {
         fmt.Fprintln(os.Stderr, "must pass exactly one of --current or --all")
@@ -254,7 +254,7 @@ func cmdVerify(args []string) {
 func cmdAdvance(args []string) {
     fs := flag.NewFlagSet("advance", flag.ExitOnError)
     planPath := fs.String("plan", defaultPlanPath, "path to plan.json")
-    fs.Parse(args)
+    _ = fs.Parse(args)
 
     p := mustLoad(*planPath)
     p.UnlockReady()
@@ -263,7 +263,7 @@ func cmdAdvance(args []string) {
         fatal(err)
     }
     if st.Status != plan.StatusVerified {
-        fatal(fmt.Errorf("cannot advance: current step %s status=%s (must be VERIFIED). Run `plansm verify --current` first.", st.ID, st.Status))
+        fatal(fmt.Errorf("cannot advance: current step %s status=%s (must be VERIFIED). Run `plansm verify --current` first", st.ID, st.Status))
     }
 
     p.UnlockReady()
@@ -282,7 +282,7 @@ func cmdAdvance(args []string) {
 func cmdDoctor(args []string) {
     fs := flag.NewFlagSet("doctor", flag.ExitOnError)
     planPath := fs.String("plan", defaultPlanPath, "path to plan.json")
-    fs.Parse(args)
+    _ = fs.Parse(args)
 
     fmt.Println("plansm doctor")
     fmt.Println("------------")
