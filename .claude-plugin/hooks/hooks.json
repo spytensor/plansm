@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "command": "plansm verify --current",
+        "blocking": true
+      }
+    ]
+  }
+}

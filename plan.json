@@ -1,0 +1,168 @@
+{
+  "version": 1,
+  "current_step": "STEP_007",
+  "invariants": [
+    "Do not mark VERIFIED without running plansm verify.",
+    "Only work on current_step unless explicitly unlocked.",
+    "Test each step before advancing."
+  ],
+  "steps": [
+    {
+      "id": "STEP_001",
+      "objective": "Create shell-based plan parser (parse-plan.sh)",
+      "status": "VERIFIED",
+      "allow_paths": [
+        ".claude-plugin/scripts/**"
+      ],
+      "verify": [
+        {
+          "type": "file_exists",
+          "file": ".claude-plugin/scripts/parse-plan.sh"
+        },
+        {
+          "type": "command",
+          "cmd": "bash .claude-plugin/scripts/parse-plan.sh plan.json current_step"
+        },
+        {
+          "type": "command",
+          "cmd": "test \"$(bash .claude-plugin/scripts/parse-plan.sh plan.json current_step)\" = \"STEP_001\""
+        }
+      ]
+    },
+    {
+      "id": "STEP_002",
+      "objective": "Create shell-based verifier (verify.sh)",
+      "status": "VERIFIED",
+      "depends_on": [
+        "STEP_001"
+      ],
+      "allow_paths": [
+        ".claude-plugin/scripts/**"
+      ],
+      "verify": [
+        {
+          "type": "file_exists",
+          "file": ".claude-plugin/scripts/verify.sh"
+        },
+        {
+          "type": "command",
+          "cmd": "bash .claude-plugin/scripts/verify.sh --help"
+        },
+        {
+          "type": "file_contains",
+          "file": ".claude-plugin/scripts/verify.sh",
+          "pattern": "verify_command|verify_file_exists"
+        }
+      ]
+    },
+    {
+      "id": "STEP_003",
+      "objective": "Create state machine handler (fsm.sh)",
+      "status": "VERIFIED",
+      "depends_on": [
+        "STEP_001"
+      ],
+      "allow_paths": [
+        ".claude-plugin/scripts/**"
+      ],
+      "verify": [
+        {
+          "type": "file_exists",
+          "file": ".claude-plugin/scripts/fsm.sh"
+        },
+        {
+          "type": "file_contains",
+          "file": ".claude-plugin/scripts/fsm.sh",
+          "pattern": "unlock_ready|advance_step"
+        },
+        {
+          "type": "command",
+          "cmd": "bash .claude-plugin/scripts/fsm.sh status plan.json"
+        }
+      ]
+    },
+    {
+      "id": "STEP_004",
+      "objective": "Update commands to use shell scripts (lite mode)",
+      "status": "VERIFIED",
+      "depends_on": [
+        "STEP_002",
+        "STEP_003"
+      ],
+      "allow_paths": [
+        ".claude-plugin/commands/**"
+      ],
+      "verify": [
+        {
+          "type": "file_contains",
+          "file": ".claude-plugin/commands/pverify.md",
+          "pattern": "scripts/verify.sh"
+        },
+        {
+          "type": "file_contains",
+          "file": ".claude-plugin/commands/pwork.md",
+          "pattern": "scripts/fsm.sh current"
+        }
+      ]
+    },
+    {
+      "id": "STEP_005",
+      "objective": "Integration test: verify shell-only workflow",
+      "status": "VERIFIED",
+      "depends_on": [
+        "STEP_004"
+      ],
+      "allow_paths": [
+        "tests/**"
+      ],
+      "verify": [
+        {
+          "type": "command",
+          "cmd": "cd /tmp \u0026\u0026 rm -rf test-plansm-shell \u0026\u0026 mkdir test-plansm-shell \u0026\u0026 cd test-plansm-shell \u0026\u0026 cp -r ~/Desktop/Projects/plansm/.claude-plugin . \u0026\u0026 echo '{\"version\":1,\"current_step\":\"TEST_001\",\"steps\":[{\"id\":\"TEST_001\",\"objective\":\"Test\",\"status\":\"PENDING\",\"verify\":[{\"type\":\"command\",\"cmd\":\"echo ok\"}]}]}' \u003e plan.json \u0026\u0026 bash .claude-plugin/scripts/verify.sh --current"
+        }
+      ]
+    },
+    {
+      "id": "STEP_006",
+      "objective": "Update documentation for zero-install mode",
+      "status": "VERIFIED",
+      "depends_on": [
+        "STEP_005"
+      ],
+      "allow_paths": [
+        "README.md",
+        "docs/**"
+      ],
+      "verify": [
+        {
+          "type": "file_contains",
+          "file": "README.md",
+          "pattern": "zero.install|Zero Install|lite mode|Lite Mode"
+        },
+        {
+          "type": "file_contains",
+          "file": "docs/quickstart.md",
+          "pattern": "cp.*\\.claude-plugin"
+        }
+      ]
+    },
+    {
+      "id": "STEP_007",
+      "objective": "Commit and push all changes",
+      "status": "PENDING",
+      "depends_on": [
+        "STEP_006"
+      ],
+      "verify": [
+        {
+          "type": "command",
+          "cmd": "git diff --cached --name-only | grep -q '.claude-plugin/scripts'"
+        },
+        {
+          "type": "command",
+          "cmd": "git log -1 --pretty=%B | grep -i 'zero.install\\|shell.based\\|lite.mode'"
+        }
+      ]
+    }
+  ]
+}

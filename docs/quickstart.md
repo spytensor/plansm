@@ -1,43 +1,81 @@
 # Quick Start Guide
 
-Get started with plansm in 5 minutes.
+Get started with plansm in 2 minutes (zero install!).
 
 ## Installation
 
-### Option 1: Build from Source
+### Option 1: Zero Install (Recommended)
 
+**No Go, no binary - just copy files!**
+
+```bash
+# 1. Clone repo
+git clone https://github.com/spytensor/plansm.git
+
+# 2. Copy to your project
+cd your-project
+cp -r ../plansm/.claude-plugin .
+
+# 3. Install jq (if not already installed)
+brew install jq  # macOS
+# or: sudo apt-get install jq  # Linux
+
+# That's it! Claude Code commands work immediately.
+```
+
+### Option 2: Full CLI (Optional)
+
+For additional features and better performance:
+
+**From Releases:**
+```bash
+curl -L https://github.com/spytensor/plansm/releases/latest/download/plansm-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m) -o plansm
+chmod +x plansm
+sudo mv plansm /usr/local/bin/
+```
+
+**From Source:**
 ```bash
 git clone https://github.com/spytensor/plansm.git
 cd plansm
 go build -o plansm ./cmd/plansm
-
-# Move to PATH (optional)
-sudo mv plansm /usr/local/bin/
-```
-
-### Option 2: Download Binary (when available)
-
-```bash
-# Download from GitHub releases
-curl -L https://github.com/spytensor/plansm/releases/latest/download/plansm-darwin-arm64 -o plansm
-chmod +x plansm
 sudo mv plansm /usr/local/bin/
 ```
 
 ## Basic Usage
 
-### 1. Initialize a Plan
-
-In your project directory:
+### Zero Install Mode
 
 ```bash
-plansm init --claude
+# In Claude Code, use slash commands:
+/pwork    # Show current step
+/pverify  # Verify with tests
+/pstatus  # Show all steps
+/pnext    # Advance
 ```
 
-This creates:
+Or run scripts directly:
+```bash
+bash .claude-plugin/scripts/fsm.sh current
+bash .claude-plugin/scripts/verify.sh --current
+bash .claude-plugin/scripts/fsm.sh advance
+```
+
+### CLI Mode
+
+If you installed the full CLI:
+
+```bash
+plansm init --claude  # One-time setup
+plansm current        # Show current step
+plansm verify --current
+plansm advance
+```
+
+Both modes create:
 - `plan.json` - Your verifiable state machine
-- `.claude/commands/` - Claude Code slash commands
-- `.claude-plugin/` - Plugin structure for distribution
+- `.claude/commands/` - Claude Code slash commands (auto-generated)
+- `.claude-plugin/` - Plugin structure with shell scripts
 
 ### 2. Check Current Status
 

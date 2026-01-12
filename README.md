@@ -38,19 +38,47 @@ VERIFIED  → Tests/proofs passed (CLI only)
 
 ## Installation
 
-### From Source
+### Zero Install Mode (Recommended for Most Users)
+
+**No Go, no binary, just copy files!**
+
+```bash
+# Clone the repository
+git clone https://github.com/spytensor/plansm.git
+
+# Copy plugin to your project
+cp -r plansm/.claude-plugin your-project/
+
+# That's it! Use /pwork, /pverify, /pstatus, /pnext in Claude Code
+```
+
+**Requirements**: Only `jq` (for JSON parsing)
+```bash
+# macOS
+brew install jq
+
+# Ubuntu/Debian
+sudo apt-get install jq
+
+# Or download from: https://jqlang.github.io/jq/
+```
+
+### Full CLI Mode (Advanced Features)
+
+For additional features (JSON output, more verify types, better performance):
+
+**From Releases:**
+```bash
+curl -L https://github.com/spytensor/plansm/releases/latest/download/plansm-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m) -o plansm
+chmod +x plansm
+sudo mv plansm /usr/local/bin/
+```
+
+**From Source:**
 ```bash
 git clone https://github.com/spytensor/plansm.git
 cd plansm
 go build -o plansm ./cmd/plansm
-sudo mv plansm /usr/local/bin/
-```
-
-### From Releases (Recommended)
-```bash
-# Download latest binary for your platform
-curl -L https://github.com/spytensor/plansm/releases/latest/download/plansm-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m) -o plansm
-chmod +x plansm
 sudo mv plansm /usr/local/bin/
 ```
 

@@ -1,0 +1,12 @@
+{
+  "name": "plansm",
+  "version": "0.1.0",
+  "description": "Plan-as-state-machine with proof-based verification (no markdown).",
+  "commands": {
+    "pwork": "commands/pwork.md",
+    "pverify": "commands/pverify.md",
+    "pstatus": "commands/pstatus.md",
+    "pnext": "commands/pnext.md"
+  },
+  "hooks": "hooks/hooks.json"
+}
