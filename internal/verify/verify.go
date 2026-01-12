@@ -133,7 +133,7 @@ func runHTTP(r plan.VerifyRule) RuleResult {
         return RuleResult{Rule: r, Ok: false, Detail: err.Error()}
     }
     defer resp.Body.Close()
-    io.Copy(io.Discard, resp.Body)
+    _, _ = io.Copy(io.Discard, resp.Body)
 
     expected := 200
     if r.Expect != nil && r.Expect.HTTPStatus != nil {

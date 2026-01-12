@@ -40,7 +40,7 @@ func main() {
 }
 
 func usage() {
-    fmt.Println(`plansm — Plan as a Verifiable State Machine
+    fmt.Print(`plansm — Plan as a Verifiable State Machine
 
 Usage:
   plansm init [--plan plan.json] [--claude]
@@ -56,7 +56,7 @@ func cmdInit(args []string) {
     fs := flag.NewFlagSet("init", flag.ExitOnError)
     planPath := fs.String("plan", defaultPlanPath, "path to plan.json")
     withClaude := fs.Bool("claude", false, "create Claude Code integration (.claude/ + .claude-plugin/)")
-    fs.Parse(args)
+    _ = fs.Parse(args)
 
     if _, err := os.Stat(*planPath); err == nil {
         fmt.Fprintf(os.Stderr, "refusing to overwrite existing %s\n", *planPath)
@@ -104,7 +104,7 @@ func cmdInit(args []string) {
 func cmdStatus(args []string) {
     fs := flag.NewFlagSet("status", flag.ExitOnError)
     planPath := fs.String("plan", defaultPlanPath, "path to plan.json")
-    fs.Parse(args)
+    _ = fs.Parse(args)
 
     p := mustLoad(*planPath)
     p.UnlockReady()
@@ -125,7 +125,7 @@ func cmdCurrent(args []string) {
     fs := flag.NewFlagSet("current", flag.ExitOnError)
     planPath := fs.String("plan", defaultPlanPath, "path to plan.json")
     asJSON := fs.Bool("json", false, "json output")
-    fs.Parse(args)
+    _ = fs.Parse(args)
 
     p := mustLoad(*planPath)
     p.UnlockReady()

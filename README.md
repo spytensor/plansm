@@ -38,84 +38,76 @@ VERIFIED  → Tests/proofs passed (CLI only)
 
 ## Installation
 
-### Zero Install Mode (Recommended for Most Users)
-
-**No Go, no binary, just copy files!**
+**No Go, no compilation, just copy files!**
 
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone https://github.com/spytensor/plansm.git
 
-# Copy plugin to your project
-cp -r plansm/.claude-plugin your-project/
+# 2. Copy plugin to your project
+cd your-project
+cp -r ../plansm/.claude-plugin .
 
-# That's it! Use /pwork, /pverify, /pstatus, /pnext in Claude Code
+# 3. Install jq (only dependency)
+brew install jq  # macOS
+# or: sudo apt-get install jq  # Linux
+
+# That's it! Ready to use in Claude Code
 ```
 
-**Requirements**: Only `jq` (for JSON parsing)
-```bash
-# macOS
-brew install jq
-
-# Ubuntu/Debian
-sudo apt-get install jq
-
-# Or download from: https://jqlang.github.io/jq/
-```
-
-### Full CLI Mode (Advanced Features)
-
-For additional features (JSON output, more verify types, better performance):
-
-**From Releases:**
-```bash
-curl -L https://github.com/spytensor/plansm/releases/latest/download/plansm-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m) -o plansm
-chmod +x plansm
-sudo mv plansm /usr/local/bin/
-```
-
-**From Source:**
-```bash
-git clone https://github.com/spytensor/plansm.git
-cd plansm
-go build -o plansm ./cmd/plansm
-sudo mv plansm /usr/local/bin/
-```
+**What you get**:
+- Shell-based verification engine (no binaries needed)
+- Claude Code commands: `/pwork`, `/pverify`, `/pstatus`, `/pnext`
+- Machine-verifiable proof system
+- Zero maintenance (pure shell scripts)
 
 ## Quick Start
 
-```bash
-# 1. Initialize plan in your project
-plansm init --claude
+### 1. Create Your Plan
 
-# 2. View current step (low token)
-plansm current
+Create `plan.json` in your project:
 
-# 3. Implement the step...
-
-# 4. Verify (runs tests/checks)
-plansm verify --current
-
-# 5. Advance to next step
-plansm advance
+```json
+{
+  "version": 1,
+  "current_step": "STEP_001",
+  "steps": [
+    {
+      "id": "STEP_001",
+      "objective": "Implement login API",
+      "status": "PENDING",
+      "verify": [
+        {"type": "command", "cmd": "npm test login"}
+      ]
+    }
+  ]
+}
 ```
 
-### Claude Code Integration
+### 2. Use in Claude Code
 
-After `plansm init --claude`, use these commands:
+In Claude Code, tell Claude:
 
-- `/pwork` — Show current step
-- `/pverify` — Verify with machine proofs
+> "Follow plan.json. Use /pwork to see current step, implement it, then use /pverify to verify, and /pnext to advance."
+
+Claude will automatically:
+1. Run `/pwork` → See current objective
+2. Implement the feature
+3. Run `/pverify` → Tests must pass
+4. Run `/pnext` → Advance to next step
+5. Repeat until complete
+
+### Available Commands
+
+- `/pwork` — Show current step (low token)
+- `/pverify` — Run verification (tests/checks)
 - `/pstatus` — Show all steps
 - `/pnext` — Advance (only if verified)
 
-**Recommended**: Set up Stop hook in Claude Code:
-```bash
-# In Claude Code, run: /hooks
-# Add Stop hook: plansm verify --current (blocking)
+**Optional**: Set Stop hook to block completion without verification:
 ```
-
-This prevents Claude from stopping until verification passes.
+In Claude Code: /hooks → Stop → bash .claude-plugin/scripts/verify.sh --current
+```
 
 ## Plan file (plan.json)
 

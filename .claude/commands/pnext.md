@@ -1,4 +1,4 @@
 ---
 description: Advance to next step (only if current step is VERIFIED).
 ---
-Run: `plansm advance`
+Run: `bash .claude-plugin/scripts/fsm.sh advance`

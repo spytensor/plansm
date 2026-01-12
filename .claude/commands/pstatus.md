@@ -1,4 +1,4 @@
 ---
 description: Show plan status table.
 ---
-Run: `plansm status`
+Run: `bash .claude-plugin/scripts/fsm.sh status`
