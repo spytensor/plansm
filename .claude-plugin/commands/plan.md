@@ -30,19 +30,15 @@ Create a NEW plan.json with:
   "steps": [
     {
       "id": "STEP_001",
-      "title": "Descriptive title",
+      "objective": "Descriptive objective of what to accomplish",
       "status": "PENDING",
-      "description": "What needs to be done",
-      "dependencies": [],
-      "verification": {
-        "rules": [
-          {
-            "type": "command|file_exists|file_contains|http",
-            "description": "What this verifies",
-            "...": "rule-specific fields"
-          }
-        ]
-      }
+      "depends_on": [],
+      "verify": [
+        {
+          "type": "command|file_exists|file_contains|http",
+          "...": "rule-specific fields"
+        }
+      ]
     }
   ]
 }
@@ -64,8 +60,7 @@ Create a NEW plan.json with:
 ```json
 {
   "type": "file_exists",
-  "description": "Component file created",
-  "path": "src/components/NewFeature.tsx"
+  "file": "src/components/NewFeature.tsx"
 }
 ```
 
@@ -73,11 +68,8 @@ Create a NEW plan.json with:
 ```json
 {
   "type": "file_contains",
-  "description": "Export added to index",
-  "path": "src/index.ts",
-  "expect": {
-    "contains": "export { NewFeature }"
-  }
+  "file": "src/index.ts",
+  "pattern": "export.*NewFeature"
 }
 ```
 
@@ -85,20 +77,17 @@ Create a NEW plan.json with:
 ```json
 {
   "type": "http",
-  "description": "API endpoint responds",
   "url": "http://localhost:3000/api/health",
-  "expect": {
-    "status": 200,
-    "body_contains": "ok"
-  }
+  "expect_status": 200,
+  "expect_body": "ok"
 }
 ```
 
 ## Step 3: Task Breakdown Principles
 
 - **Atomic steps**: Each step should be independently verifiable
-- **Clear dependencies**: Use `dependencies: ["STEP_XXX"]` for ordering
-- **Start LOCKED**: Steps with dependencies start as LOCKED
+- **Clear dependencies**: Use `depends_on: ["STEP_XXX"]` for ordering
+- **Start LOCKED**: Steps with dependencies start as LOCKED status
 - **Reasonable granularity**: Not too fine (10+ steps for simple task), not too coarse (1 step for complex feature)
 - **Verification first**: Always think "how do I PROVE this is done?" before writing the step
 
@@ -140,11 +129,11 @@ User: "Add dark mode toggle to the app"
 You should:
 1. Analyze: Need theme context, toggle component, CSS updates, tests
 2. Generate plan.json with 5 steps:
-   - STEP_001: Create theme context (verify: file exists, exports ThemeContext)
-   - STEP_002: Create toggle component (verify: file exists, tests pass)
-   - STEP_003: Add theme CSS variables (verify: file contains CSS vars)
-   - STEP_004: Integrate toggle in header (verify: file contains import)
-   - STEP_005: Run all tests (verify: command exit 0)
+   - STEP_001: Create theme context (verify: file_exists + file_contains ThemeContext)
+   - STEP_002: Create toggle component (verify: file_exists + command npm test)
+   - STEP_003: Add theme CSS variables (verify: file_contains CSS vars)
+   - STEP_004: Integrate toggle in header (verify: file_contains import statement)
+   - STEP_005: Run all tests (verify: command npm test, expect exit_code 0)
 3. Auto-execute: Implement → Verify → Advance, repeat
 4. Report completion when all steps VERIFIED
 

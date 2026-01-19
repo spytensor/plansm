@@ -102,13 +102,11 @@ If you prefer to write `plan.json` yourself:
   "steps": [
     {
       "id": "STEP_001",
-      "title": "Implement login API",
+      "objective": "Implement login API",
       "status": "PENDING",
-      "verification": {
-        "rules": [
-          {"type": "command", "cmd": "npm test login"}
-        ]
-      }
+      "verify": [
+        {"type": "command", "cmd": "npm test login"}
+      ]
     }
   ]
 }

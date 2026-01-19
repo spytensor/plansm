@@ -227,14 +227,12 @@ If you prefer to write `plan.json` yourself:
   "steps": [
     {
       "id": "STEP_001",
-      "title": "Setup Express server",
+      "objective": "Setup Express server",
       "status": "PENDING",
-      "verification": {
-        "rules": [
-          {"type": "command", "cmd": "node src/server.js & sleep 2 && curl http://localhost:3000"},
-          {"type": "file_contains", "path": "src/server.js", "expect": {"contains": "express"}}
-        ]
-      }
+      "verify": [
+        {"type": "command", "cmd": "node src/server.js & sleep 2 && curl http://localhost:3000"},
+        {"type": "file_contains", "file": "src/server.js", "pattern": "express"}
+      ]
     }
   ]
 }
