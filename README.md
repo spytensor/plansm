@@ -63,56 +63,42 @@ brew install jq  # macOS
 
 ## Quick Start
 
-### Automated Workflow (Recommended)
+In Claude Code, run:
 
-**Just give Claude your requirement, and let plansm handle everything:**
+```
+/plansm
+```
 
-In Claude Code, simply say:
-
-> "I need to add user authentication to my app"
-
-Claude with plansm will **automatically**:
+Then describe what you want to build. plansm will:
 
 1. **Analyze** your requirement and codebase
 2. **Generate** `plan.json` with all steps and verification rules
-3. **Execute** each step one by one:
-   - Implement the code (using appropriate subagents)
-   - Verify it passes tests/checks
+3. **Auto-execute** each step:
+   - Implement the code
+   - Verify it passes tests
    - Advance to next step
 4. **Report** when all steps are VERIFIED
 
-**You don't write plan.json manually. You don't run commands manually. Just state your need.**
+**That's it. No manual planning, no running commands, just results.**
 
-### Available Commands
+### Example Usage
 
-- `/plan` — Give requirements, auto-generate plan.json and execute
-- `/pwork` — Show current step (low token)
-- `/pverify` — Run verification (tests/checks)
-- `/pstatus` — Show all steps
-- `/pnext` — Advance (only if verified)
-
-### Manual Planning (Advanced)
-
-If you prefer to write `plan.json` yourself:
-
-```json
-{
-  "version": 1,
-  "current_step": "STEP_001",
-  "steps": [
-    {
-      "id": "STEP_001",
-      "objective": "Implement login API",
-      "status": "PENDING",
-      "verify": [
-        {"type": "command", "cmd": "npm test login"}
-      ]
-    }
-  ]
-}
 ```
+User: /plansm
+Claude: What would you like to build?
+User: Add dark mode toggle to my React app
 
-Then tell Claude: "Follow plan.json using /pwork, /pverify, /pnext"
+Claude: Analyzing requirements...
+Generating plan with 5 steps...
+
+STEP_001: Create theme context ✓
+STEP_002: Create toggle component ✓
+STEP_003: Add CSS variables ✓
+STEP_004: Integrate in header ✓
+STEP_005: Run tests ✓
+
+All steps verified! Dark mode implemented.
+```
 
 ## Plan file (plan.json)
 

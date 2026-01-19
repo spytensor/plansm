@@ -191,11 +191,13 @@ Reminds Claude of current step before major actions.
 
 ## Recommended Workflow
 
-### Automated Mode (Recommended)
+**Just run the `/plansm` skill:**
 
-**Just give Claude your requirement:**
+> `/plansm I need to add user authentication with JWT tokens`
 
-> "I need to add user authentication with JWT tokens"
+Or simply describe your requirement and ask Claude to use plansm:
+
+> "I need to add user authentication with JWT tokens. Use plansm to plan and implement this."
 
 Claude will **automatically**:
 
@@ -216,42 +218,16 @@ Claude will **automatically**:
 
 **Claude handles everything end-to-end.**
 
-### Manual Mode (Advanced)
-
-If you prefer to write `plan.json` yourself:
-
-```json
-{
-  "version": 1,
-  "current_step": "STEP_001",
-  "steps": [
-    {
-      "id": "STEP_001",
-      "objective": "Setup Express server",
-      "status": "PENDING",
-      "verify": [
-        {"type": "command", "cmd": "node src/server.js & sleep 2 && curl http://localhost:3000"},
-        {"type": "file_contains", "file": "src/server.js", "pattern": "express"}
-      ]
-    }
-  ]
-}
-```
-
-Tell Claude:
-
-> "Follow plan.json. Use /pwork, /pverify, /pnext to execute."
-
 ### Review Phase
 
 As a human:
 
 ```bash
 # Check overall state
-bash .claude-plugin/scripts/fsm.sh status
+plansm status
 
 # Verify all steps
-bash .claude-plugin/scripts/verify.sh --all
+plansm verify --all
 
 # Review code changes
 git diff
@@ -383,10 +359,8 @@ If Claude ignores this, explicitly tell it:
 
 ## Example Session
 
-### Automated Mode
-
 ```
-User: I need to add a dark mode toggle to my React app
+User: /plansm I need to add a dark mode toggle to my React app
 
 Claude: I'll help you implement a dark mode toggle. Let me analyze your codebase
 and create a plan.
@@ -424,37 +398,6 @@ STEP_005: Run all tests
 All steps completed and verified! Dark mode toggle is now working.
 ```
 
-### Manual Mode
-
-```
-User: Follow plan.json to implement the login feature
-
-Claude: Let me check the current step.
-[Runs /pwork]
-
-CURRENT_STEP: STEP_003
-STATUS: PENDING
-TITLE: Implement login API endpoint
-VERIFY:
-  - command: npm test -- login
-
-I'll implement the login API endpoint at src/api/login.js.
-[... implements code ...]
-
-Let me verify this works.
-[Runs /pverify]
-
-STEP STEP_003: OK
-  ✓ command: npm test -- login
-
-Great! The tests pass. Moving to next step.
-[Runs /pnext]
-
-advanced to STEP_004
-
-Now working on: Add JWT authentication
-```
-
 ## CI/CD Integration
 
 Add to `.github/workflows/ci.yml`:
@@ -476,7 +419,8 @@ This ensures:
 
 plansm + Claude Code = **Low-token, verifiable, machine-enforced planning**.
 
-- Commands: `/pwork`, `/pverify`, `/pstatus`, `/pnext`
+- Skill: `/plansm` for fully automated planning and execution
+- Commands: `/pwork`, `/pverify`, `/pstatus`, `/pnext` for manual control
 - Hook: Stop hook with `plansm verify --current`
-- Workflow: Plan → Work → Verify → Advance
+- Workflow: Just run `/plansm` and Claude handles everything
 - Result: No fake completion, minimal tokens, clear progress

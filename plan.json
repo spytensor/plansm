@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "current_step": "STEP_004",
+  "current_step": "STEP_007",
   "invariants": [
     "Do not mark VERIFIED without running verification.",
     "Only work on current_step unless explicitly unlocked.",
@@ -9,50 +9,70 @@
   "steps": [
     {
       "id": "STEP_001",
-      "objective": "Verify /plan command uses correct schema",
+      "objective": "Research Claude Code skill structure and requirements",
       "status": "VERIFIED",
       "depends_on": [],
       "verify": [
         {
-          "type": "file_contains",
-          "file": ".claude-plugin/commands/plan.md",
-          "pattern": "\"objective\":"
+          "type": "file_exists",
+          "file": "docs/skill-requirements.md"
         },
         {
           "type": "file_contains",
-          "file": ".claude-plugin/commands/plan.md",
-          "pattern": "\"verify\":"
-        },
-        {
-          "type": "file_contains",
-          "file": ".claude-plugin/commands/plan.md",
-          "pattern": "\"depends_on\":"
+          "file": "docs/skill-requirements.md",
+          "pattern": "skill.*structure|skill.*format"
         }
       ]
     },
     {
       "id": "STEP_002",
-      "objective": "Verify README uses correct schema",
+      "objective": "Create plansm skill file with complete workflow",
       "status": "VERIFIED",
       "depends_on": [
         "STEP_001"
       ],
       "verify": [
         {
-          "type": "file_contains",
-          "file": "README.md",
-          "pattern": "\"objective\":.*\"Implement login API\""
+          "type": "file_exists",
+          "file": ".claude-plugin/skills/plansm.md"
         },
         {
           "type": "file_contains",
-          "file": "README.md",
-          "pattern": "\"verify\":"
+          "file": ".claude-plugin/skills/plansm.md",
+          "pattern": "Generate plan.json"
+        },
+        {
+          "type": "file_contains",
+          "file": ".claude-plugin/skills/plansm.md",
+          "pattern": "Auto-Execution Loop"
+        },
+        {
+          "type": "file_contains",
+          "file": ".claude-plugin/skills/plansm.md",
+          "pattern": "verification.*rules"
         }
       ]
     },
     {
       "id": "STEP_003",
-      "objective": "Verify claude-code.md uses correct schema",
+      "objective": "Remove plan.md from commands directory",
+      "status": "VERIFIED",
+      "depends_on": [
+        "STEP_002"
+      ],
+      "verify": [
+        {
+          "type": "command",
+          "cmd": "test ! -f .claude-plugin/commands/plan.md",
+          "expect": {
+            "exit_code": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "STEP_004",
+      "objective": "Update README to use /plansm skill instead of manual workflow",
       "status": "VERIFIED",
       "depends_on": [
         "STEP_002"
@@ -60,27 +80,86 @@
       "verify": [
         {
           "type": "file_contains",
-          "file": "docs/claude-code.md",
-          "pattern": "\"objective\":.*\"Setup Express server\""
+          "file": "README.md",
+          "pattern": "/plansm"
         },
         {
-          "type": "file_contains",
-          "file": "docs/claude-code.md",
-          "pattern": "\"file\":.*\"src/server.js\""
+          "type": "command",
+          "cmd": "grep -q 'Manual Planning' README.md",
+          "expect": {
+            "exit_code": 1
+          }
+        },
+        {
+          "type": "command",
+          "cmd": "grep -E '`/plan`|`/plan ` README.md",
+          "expect": {
+            "exit_code": 1
+          }
         }
       ]
     },
     {
-      "id": "STEP_004",
-      "objective": "Verify changes are committed",
+      "id": "STEP_005",
+      "objective": "Update docs/claude-code.md to reflect skill-based workflow",
       "status": "VERIFIED",
       "depends_on": [
-        "STEP_003"
+        "STEP_004"
+      ],
+      "verify": [
+        {
+          "type": "file_contains",
+          "file": "docs/claude-code.md",
+          "pattern": "/plansm"
+        },
+        {
+          "type": "command",
+          "cmd": "grep -q 'Manual Mode' docs/claude-code.md",
+          "expect": {
+            "exit_code": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "STEP_006",
+      "objective": "Test the skill works by creating a sample plan",
+      "status": "VERIFIED",
+      "depends_on": [
+        "STEP_005"
+      ],
+      "verify": [
+        {
+          "type": "file_exists",
+          "file": ".claude-plugin/skills/plansm.md"
+        },
+        {
+          "type": "command",
+          "cmd": "test -d .claude-plugin/skills",
+          "expect": {
+            "exit_code": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "STEP_007",
+      "objective": "Commit all changes with proper message",
+      "status": "PENDING",
+      "depends_on": [
+        "STEP_006"
       ],
       "verify": [
         {
           "type": "command",
-          "cmd": "git log -1 --pretty=%B | grep -i 'schema'",
+          "cmd": "git diff --cached --name-only | grep -q 'skills/plansm.md'",
+          "expect": {
+            "exit_code": 0
+          }
+        },
+        {
+          "type": "command",
+          "cmd": "git log -1 --pretty=%B | grep -i 'skill'",
           "expect": {
             "exit_code": 0
           }
