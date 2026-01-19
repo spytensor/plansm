@@ -48,7 +48,9 @@ Deeply understand what the user wants to build:
 
 ### Phase 2: Generate plan.json
 
-Create a NEW plan.json with this structure:
+**IMPORTANT**: Always create a NEW `plan.json` file for each task. This file is gitignored by default since it's task-specific working state. The repository may contain `plan.json.example` as a reference, but you should generate a fresh `plan.json` for each user request.
+
+Create plan.json with this structure:
 
 ```json
 {
@@ -169,7 +171,8 @@ When all steps VERIFIED:
 2. **ALWAYS verify** before marking complete
 3. **Use subagents** for complex tasks - don't do everything yourself
 4. **Keep going** until ALL steps are VERIFIED - no stopping midway
-5. **Each task gets a NEW plan.json** - don't append to existing plans
+5. **Each task gets a NEW plan.json** - don't reuse or append to existing plans
+6. **plan.json is gitignored** - it's working state, not committed. plan.json.example is the reference template
 
 ## Example Execution
 
