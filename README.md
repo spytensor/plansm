@@ -44,21 +44,23 @@ VERIFIED  → Tests/proofs passed (CLI only)
 # 1. Clone the repository
 git clone https://github.com/spytensor/plansm.git
 
-# 2. Copy plugin to your project
+# 2. Copy skill to your project
 cd your-project
-cp -r ../plansm/.claude-plugin .
+cp -r ../plansm/skills/plansm ~/.claude/skills/
+# Or for project-local: cp -r ../plansm/skills/plansm .claude/skills/
 
 # 3. Install jq (only dependency)
 brew install jq  # macOS
 # or: sudo apt-get install jq  # Linux
 
-# That's it! Ready to use in Claude Code
+# That's it! Ready to use in Claude Code with /plansm
 ```
 
 **What you get**:
+- Self-contained skill in `skills/plansm/`
 - Shell-based verification engine (no binaries needed)
-- Claude Code commands: `/pwork`, `/pverify`, `/pstatus`, `/pnext`
-- Machine-verifiable proof system
+- Machine-verifiable proof system with 4 rule types
+- Stop hook prevents fake completion
 - Zero maintenance (pure shell scripts)
 
 ## Quick Start
