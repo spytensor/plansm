@@ -7,33 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- Initial implementation of plansm CLI
-- `plan.json` state machine format with JSON schema validation
-- Four verification rule types: `command`, `file_exists`, `file_contains`, `http`
-- CLI commands: `init`, `status`, `current`, `verify`, `advance`, `doctor`
-- Claude Code integration with project commands
-- Slash commands: `/pwork`, `/pverify`, `/pstatus`, `/pnext`
-- Claude Code plugin structure (`.claude-plugin/`)
-- Stop hook support for blocking on failed verification
-- Comprehensive documentation:
-  - Concept guide explaining why Markdown planning fails
-  - Quick start guide
-  - Claude Code integration guide
-- Example project: Node.js REST API with test-driven steps
-- Git pre-commit hook to prevent manual status edits
-- GitHub Actions CI/CD workflows:
-  - CI: Build, test, lint across multiple Go versions and OS
-  - Release: Automated binary builds for multiple platforms
-- Anti-cheating features:
-  - State machine enforcement
-  - Git hooks
-  - CI verification gates
-  - Audit trail through git history
+## [1.0.0] - 2026-01-19
 
-### Fixed
-- String escaping issues in Claude Code command generation
-- Go module path updated to correct GitHub repository
+### Changed
+- **Architecture Migration**: Converted from Go CLI to pure shell script Claude Code skill
+- Simplified installation: No compilation needed, just copy `.claude/skills/plansm/`
+- All commands now integrated as Claude Code skill (`/plansm`)
+- Updated all documentation to reflect skill-based architecture
+- Verification scripts remain shell-based (no dependency on Go)
+
+### Added
+- Claude Code skill integration with SKILL.md
+- Skill-based workflow with automatic plan generation and execution
+- Stop hook prevents session end until all steps verified
+- Template system with `plan.json.example` as reference
+- Comprehensive skill documentation and examples
+
+### Removed
+- Go CLI binary and compilation requirements
+- Standalone CLI commands (replaced by skill commands)
+- Go module dependencies
 
 ## [0.1.0] - 2026-01-12
 

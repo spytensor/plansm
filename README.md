@@ -37,16 +37,16 @@ VERIFIED  → Tests/proofs passed (script-verified only)
 
 ## Installation
 
-**No Go, no compilation, just copy files!**
+**Pure shell script skill - no compilation needed!**
 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/spytensor/plansm.git
 
-# 2. Copy skill to your project
-cd your-project
-cp -r ../plansm/skills/plansm ~/.claude/skills/
-# Or for project-local: cp -r ../plansm/skills/plansm .claude/skills/
+# 2. Copy skill to Claude Code
+cd plansm
+cp -r .claude/skills/plansm ~/.claude/skills/
+# Or for project-local installation: cp -r .claude/skills/plansm .claude/skills/
 
 # 3. Install jq (only dependency)
 brew install jq  # macOS
@@ -56,7 +56,7 @@ brew install jq  # macOS
 ```
 
 **What you get**:
-- Self-contained skill in `skills/plansm/`
+- Self-contained skill in `.claude/skills/plansm/`
 - Shell-based verification engine (no binaries needed)
 - Machine-verifiable proof system with 4 rule types
 - Stop hook prevents fake completion
@@ -152,7 +152,7 @@ Verify rule types:
 
 1. **State Machine Enforcement**: Only verification scripts can set VERIFIED status
 2. **Stop Hook**: Claude Code hook prevents stopping until all steps verified
-3. **CI Verification**: `bash skills/plansm/scripts/verify.sh --all` in CI/CD
+3. **CI Verification**: Automated verification in CI/CD pipelines
 4. **Audit Trail**: All state changes tracked in git history
 5. **JSON Schema**: Structure validation
 
@@ -166,11 +166,11 @@ git clone https://github.com/spytensor/plansm.git
 cd plansm
 
 # Test the skill locally
-cp -r skills/plansm ~/.claude/skills/
+cp -r .claude/skills/plansm ~/.claude/skills/
 # Then use /plansm in Claude Code
 
 # Test verification scripts
-bash skills/plansm/scripts/verify.sh --help
+bash ~/.claude/skills/plansm/scripts/verify.sh --help
 ```
 
 ## Roadmap
@@ -179,8 +179,8 @@ bash skills/plansm/scripts/verify.sh --help
 - [ ] Web UI for plan visualization
 - [ ] More verify rule types (Docker, API contracts)
 - [ ] Plan templates library
-- [ ] Homebrew formula
-- [ ] VS Code extension
+- [ ] VS Code extension integration
+- [ ] Multi-language support for verification rules
 
 ## License
 
