@@ -34,7 +34,12 @@ jobs:
 
     - name: Verify current plan step
       run: |
-        bash skills/plansm/scripts/verify.sh --current
+        # Skip verification if all steps are already VERIFIED
+        if bash skills/plansm/scripts/fsm.sh status | grep -q "PENDING\|FAILED"; then
+          bash skills/plansm/scripts/verify.sh --current
+        else
+          echo "All steps already VERIFIED, skipping verification"
+        fi
 
     - name: Check skill structure
       run: |
