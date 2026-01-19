@@ -63,9 +63,37 @@ brew install jq  # macOS
 
 ## Quick Start
 
-### 1. Create Your Plan
+### Automated Workflow (Recommended)
 
-Create `plan.json` in your project:
+**Just give Claude your requirement, and let plansm handle everything:**
+
+In Claude Code, simply say:
+
+> "I need to add user authentication to my app"
+
+Claude with plansm will **automatically**:
+
+1. **Analyze** your requirement and codebase
+2. **Generate** `plan.json` with all steps and verification rules
+3. **Execute** each step one by one:
+   - Implement the code (using appropriate subagents)
+   - Verify it passes tests/checks
+   - Advance to next step
+4. **Report** when all steps are VERIFIED
+
+**You don't write plan.json manually. You don't run commands manually. Just state your need.**
+
+### Available Commands
+
+- `/plan` — Give requirements, auto-generate plan.json and execute
+- `/pwork` — Show current step (low token)
+- `/pverify` — Run verification (tests/checks)
+- `/pstatus` — Show all steps
+- `/pnext` — Advance (only if verified)
+
+### Manual Planning (Advanced)
+
+If you prefer to write `plan.json` yourself:
 
 ```json
 {
@@ -74,40 +102,19 @@ Create `plan.json` in your project:
   "steps": [
     {
       "id": "STEP_001",
-      "objective": "Implement login API",
+      "title": "Implement login API",
       "status": "PENDING",
-      "verify": [
-        {"type": "command", "cmd": "npm test login"}
-      ]
+      "verification": {
+        "rules": [
+          {"type": "command", "cmd": "npm test login"}
+        ]
+      }
     }
   ]
 }
 ```
 
-### 2. Use in Claude Code
-
-In Claude Code, tell Claude:
-
-> "Follow plan.json. Use /pwork to see current step, implement it, then use /pverify to verify, and /pnext to advance."
-
-Claude will automatically:
-1. Run `/pwork` → See current objective
-2. Implement the feature
-3. Run `/pverify` → Tests must pass
-4. Run `/pnext` → Advance to next step
-5. Repeat until complete
-
-### Available Commands
-
-- `/pwork` — Show current step (low token)
-- `/pverify` — Run verification (tests/checks)
-- `/pstatus` — Show all steps
-- `/pnext` — Advance (only if verified)
-
-**Optional**: Set Stop hook to block completion without verification:
-```
-In Claude Code: /hooks → Stop → bash .claude-plugin/scripts/verify.sh --current
-```
+Then tell Claude: "Follow plan.json using /pwork, /pverify, /pnext"
 
 ## Plan file (plan.json)
 

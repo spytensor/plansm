@@ -191,9 +191,34 @@ Reminds Claude of current step before major actions.
 
 ## Recommended Workflow
 
-### 1. Plan Phase
+### Automated Mode (Recommended)
 
-Create your plan in `plan.json`:
+**Just give Claude your requirement:**
+
+> "I need to add user authentication with JWT tokens"
+
+Claude will **automatically**:
+
+1. **Analyze**: Understand the requirement and explore codebase
+2. **Plan**: Generate `plan.json` with all steps and verification rules
+3. **Execute Loop**:
+   - Implement current step (using subagents as needed)
+   - Run verification (`/pverify`)
+   - Advance to next step (`/pnext`)
+   - Repeat until all VERIFIED
+4. **Report**: "All steps completed and verified!"
+
+**You don't need to**:
+- Write plan.json manually
+- Tell Claude to use /pwork, /pverify, /pnext
+- Monitor each step
+- Intervene unless something fails
+
+**Claude handles everything end-to-end.**
+
+### Manual Mode (Advanced)
+
+If you prefer to write `plan.json` yourself:
 
 ```json
 {
@@ -202,41 +227,33 @@ Create your plan in `plan.json`:
   "steps": [
     {
       "id": "STEP_001",
-      "objective": "Setup Express server",
+      "title": "Setup Express server",
       "status": "PENDING",
-      "verify": [
-        {"type": "command", "cmd": "node src/server.js & sleep 2 && curl http://localhost:3000"},
-        {"type": "file_contains", "file": "src/server.js", "pattern": "express"}
-      ]
-    },
-    ...
+      "verification": {
+        "rules": [
+          {"type": "command", "cmd": "node src/server.js & sleep 2 && curl http://localhost:3000"},
+          {"type": "file_contains", "path": "src/server.js", "expect": {"contains": "express"}}
+        ]
+      }
+    }
   ]
 }
 ```
 
-### 2. Work Phase
-
 Tell Claude:
 
-> "Follow plan.json. Use /pwork to see current step. Use /pverify when done."
+> "Follow plan.json. Use /pwork, /pverify, /pnext to execute."
 
-Claude will:
-1. Run `/pwork` to see current objective
-2. Implement the feature
-3. Run `/pverify` to check proof
-4. If failed: fix and re-verify
-5. If passed: run `/pnext`
-
-### 3. Review Phase
+### Review Phase
 
 As a human:
 
 ```bash
 # Check overall state
-plansm status
+bash .claude-plugin/scripts/fsm.sh status
 
 # Verify all steps
-plansm verify --all
+bash .claude-plugin/scripts/verify.sh --all
 
 # Review code changes
 git diff
@@ -368,6 +385,49 @@ If Claude ignores this, explicitly tell it:
 
 ## Example Session
 
+### Automated Mode
+
+```
+User: I need to add a dark mode toggle to my React app
+
+Claude: I'll help you implement a dark mode toggle. Let me analyze your codebase
+and create a plan.
+
+[Analyzes codebase structure, finds React components, CSS setup]
+[Generates plan.json with 5 steps]
+[Writes plan.json to disk]
+
+Starting execution...
+
+STEP_001: Create theme context
+[Implements ThemeContext.tsx]
+[Runs verification]
+✓ Verified
+
+STEP_002: Create toggle component
+[Implements DarkModeToggle.tsx]
+[Runs verification]
+✓ Verified
+
+STEP_003: Add CSS variables
+[Updates global.css with theme variables]
+[Runs verification]
+✓ Verified
+
+STEP_004: Integrate toggle in header
+[Imports and adds toggle to Header.tsx]
+[Runs verification]
+✓ Verified
+
+STEP_005: Run all tests
+[Executes npm test]
+✓ All tests pass
+
+All steps completed and verified! Dark mode toggle is now working.
+```
+
+### Manual Mode
+
 ```
 User: Follow plan.json to implement the login feature
 
@@ -376,7 +436,7 @@ Claude: Let me check the current step.
 
 CURRENT_STEP: STEP_003
 STATUS: PENDING
-OBJECTIVE: Implement login API endpoint
+TITLE: Implement login API endpoint
 VERIFY:
   - command: npm test -- login
 
