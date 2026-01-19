@@ -26,26 +26,6 @@ jobs:
           brew install jq
         fi
 
-    - name: Test verification scripts
-      run: |
-        bash skills/plansm/scripts/verify.sh --help
-        bash skills/plansm/scripts/fsm.sh status
-        bash skills/plansm/scripts/parse-plan.sh plan.json version
-
-    - name: Verify current plan step
-      run: |
-        # Skip verification if all steps are already VERIFIED
-        set +e
-        bash skills/plansm/scripts/fsm.sh status | grep -q "PENDING\|FAILED"
-        HAS_PENDING=$?
-        set -e
-
-        if [ $HAS_PENDING -eq 0 ]; then
-          bash skills/plansm/scripts/verify.sh --current
-        else
-          echo "All steps already VERIFIED, skipping verification"
-        fi
-
     - name: Check skill structure
       run: |
         test -f skills/plansm/SKILL.md
@@ -54,9 +34,24 @@ jobs:
         test -d skills/plansm/templates
         test -f skills/plansm/templates/plan-template.json
 
+    - name: Test with example plan
+      run: |
+        # Use example plan for CI testing
+        cp plan.json.example plan.json
+
+    - name: Test verification scripts
+      run: |
+        bash skills/plansm/scripts/verify.sh --help
+        bash skills/plansm/scripts/fsm.sh status
+        bash skills/plansm/scripts/parse-plan.sh plan.json version
+
+    - name: Verify example plan step
+      run: |
+        bash skills/plansm/scripts/verify.sh --current
+
     - name: Validate plan.json schema
       run: |
-        jq empty plan.json
-        jq -e '.version' plan.json
-        jq -e '.current_step' plan.json
-        jq -e '.steps | length > 0' plan.json
+        jq empty plan.json.example
+        jq -e '.version' plan.json.example
+        jq -e '.current_step' plan.json.example
+        jq -e '.steps | length > 0' plan.json.example

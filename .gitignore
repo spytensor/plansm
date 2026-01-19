@@ -16,3 +16,6 @@ temp/
 
 # Claude Code settings (local only)
 .claude/settings.local.json
+
+# plansm working plans (user-generated)
+plan.json
