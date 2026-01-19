@@ -157,6 +157,45 @@ When all steps VERIFIED:
 }
 ```
 
+### glob_pattern_check: Check ALL files match pattern
+```json
+{
+  "type": "glob_pattern_check",
+  "glob": "src/components/*.tsx",
+  "pattern": "export default",
+  "expect": {
+    "min_count": 5
+  }
+}
+```
+
+**WARNING - Sampling Verification Trap:**
+
+When verifying multiple files need a change, ALWAYS use `glob_pattern_check` instead of `file_contains`. Checking only one file is a common verification vulnerability.
+
+**VULNERABLE:**
+```json
+{
+  "type": "file_contains",
+  "file": "src/utils/math.ts",
+  "pattern": "export function"
+}
+```
+Problem: Only checks ONE file. LLM could forget other files in `src/utils/`.
+
+**SECURE:**
+```json
+{
+  "type": "glob_pattern_check",
+  "glob": "src/utils/*.ts",
+  "pattern": "export function",
+  "expect": {
+    "min_count": 5
+  }
+}
+```
+Solution: Checks ALL files matching the glob. Verification fails if ANY file is missing the pattern.
+
 ## Task Breakdown Principles
 
 - **Atomic steps**: Each step should be independently verifiable

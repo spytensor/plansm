@@ -57,12 +57,14 @@ jq empty plan.json.example
 
 ## Adding New Verification Rule Types
 
-If you want to add a new verification rule type (beyond command, file_exists, file_contains, http):
+If you want to add a new verification rule type (beyond command, file_exists, file_contains, http, glob_pattern_check):
 
 1. Update `skills/plansm/scripts/verify.sh` to handle the new type
 2. Add examples to `skills/plansm/references/verification-rules.md`
 3. Update `plan.json.example` with an example
-4. Test on both macOS and Linux
+4. Update documentation to reflect the new rule count
+5. Add entry to CHANGELOG.md
+6. Test on both macOS and Linux
 
 ## Questions?
 

@@ -1,0 +1,4 @@
+# Test File 2
+TEST_PATTERN: This file also contains the test pattern
+Module: file2
+Purpose: Testing glob_pattern_check verification

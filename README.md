@@ -58,7 +58,7 @@ brew install jq  # macOS
 **What you get**:
 - Self-contained skill in `.claude/skills/plansm/`
 - Shell-based verification engine (no binaries needed)
-- Machine-verifiable proof system with 4 rule types
+- Machine-verifiable proof system with 5 rule types
 - Stop hook prevents fake completion
 - Zero maintenance (pure shell scripts)
 
@@ -137,9 +137,10 @@ Statuses: `LOCKED | PENDING | FAILED | VERIFIED`
 
 Verify rule types:
 - `command`: run bash command, check exit code and optional stdout regex
-- `file_exists`
-- `file_contains` (regex)
-- `http` (GET by default; checks status code)
+- `file_exists`: check if file or directory exists
+- `file_contains`: check if file contains regex pattern
+- `http`: check HTTP response status and optional body pattern
+- `glob_pattern_check`: verify ALL files matching glob contain pattern (fixes sampling verification trap)
 
 ## Documentation
 

@@ -1,6 +1,6 @@
 # Verification Rules Reference
 
-plansm supports four types of machine-verifiable proof rules: command, file_exists, file_contains, and http. Each rule must pass for a step to be marked VERIFIED.
+plansm supports five types of machine-verifiable proof rules: command, file_exists, file_contains, http, and glob_pattern_check. Each rule must pass for a step to be marked VERIFIED.
 
 ## Rule Types
 
@@ -114,6 +114,93 @@ Makes an HTTP GET request and verifies the response.
 }
 ```
 
+### 5. glob_pattern_check - Check All Files Match Pattern
+
+Verifies that ALL files matching a glob pattern contain a required pattern. This rule type fixes the "sampling verification trap" where checking only a single file can miss violations in other files.
+
+**Required fields:**
+- `type`: `"glob_pattern_check"`
+- `glob`: Glob pattern to match files (e.g., `src/**/*.ts`, `tests/*.test.js`)
+- `pattern`: Regex pattern that ALL matched files must contain
+
+**Optional fields:**
+- `expect.min_count`: Minimum number of files that must match the pattern
+- `expect.max_count`: Maximum number of files that must match the pattern
+- `expect.exact_count`: Exact number of files that must match the pattern
+
+**Examples:**
+
+```json
+{
+  "type": "glob_pattern_check",
+  "glob": "src/**/*.ts",
+  "pattern": "import.*Logger",
+  "expect": {
+    "min_count": 5
+  }
+}
+```
+
+```json
+{
+  "type": "glob_pattern_check",
+  "glob": "tests/*.test.js",
+  "pattern": "describe\\(",
+  "expect": {
+    "exact_count": 10
+  }
+}
+```
+
+```json
+{
+  "type": "glob_pattern_check",
+  "glob": "src/components/*.tsx",
+  "pattern": "export default",
+  "expect": {
+    "min_count": 3,
+    "max_count": 10
+  }
+}
+```
+
+**Sampling Verification Warning:**
+
+The `glob_pattern_check` rule type was created to prevent a common verification vulnerability:
+
+**VULNERABLE (sampling verification trap):**
+```json
+{
+  "type": "file_contains",
+  "file": "src/utils/math.ts",
+  "pattern": "export function"
+}
+```
+
+Problem: This only checks ONE file. An LLM could add the export to `math.ts` but forget to add it to `string.ts`, `array.ts`, etc. The verification passes even though the task is incomplete.
+
+**SECURE (exhaustive verification):**
+```json
+{
+  "type": "glob_pattern_check",
+  "glob": "src/utils/*.ts",
+  "pattern": "export function",
+  "expect": {
+    "min_count": 5
+  }
+}
+```
+
+This checks ALL files matching `src/utils/*.ts` and ensures at least 5 files have the export pattern. If any file is missing the pattern, verification fails and lists the offending files.
+
+**Pattern notes:**
+- Uses grep extended regex syntax
+- Case-sensitive by default
+- `.` matches any character except newline
+- `.*` matches any characters
+- Use `\\` to escape special regex chars
+- Glob patterns follow standard shell glob syntax (`*`, `**`, `?`, `[...]`)
+
 ## Combining Multiple Rules
 
 A step can have multiple verification rules. ALL must pass:
@@ -171,6 +258,26 @@ A step can have multiple verification rules. ALL must pass:
 
 ❌ **Manual Status**: Editing plan.json status fields by hand
 ✅ **Machine Only**: Let verify.sh update status based on test results
+
+❌ **Sampling Verification Trap**: Checking only one file when multiple exist
+```json
+{
+  "type": "file_contains",
+  "file": "src/components/Button.tsx",
+  "pattern": "aria-label"
+}
+```
+✅ **Exhaustive Verification**: Use glob_pattern_check for multiple files
+```json
+{
+  "type": "glob_pattern_check",
+  "glob": "src/components/*.tsx",
+  "pattern": "aria-label",
+  "expect": {
+    "min_count": 10
+  }
+}
+```
 
 ## See Also
 

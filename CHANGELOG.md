@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **glob_pattern_check verification rule**: New rule type that verifies ALL files matching a glob pattern contain a required pattern
+  - Fixes Issue #1: Sampling verification vulnerability where checking only one file can miss violations in other files
+  - Supports `min_count`, `max_count`, and `exact_count` validation
+  - Reports all files that fail pattern matching for easy debugging
+  - Example: Verify all TypeScript files in a directory export a function
+- Comprehensive documentation for glob_pattern_check in verification-rules.md
+- Sampling verification trap warnings in SKILL.md and verification-rules.md
+- Example usage in plan.json.example
+
+### Changed
+- Updated documentation to reflect 5 verification rule types (was 4)
+- Enhanced anti-patterns section with sampling verification examples
+
 ## [1.0.0] - 2026-01-19
 
 ### Changed

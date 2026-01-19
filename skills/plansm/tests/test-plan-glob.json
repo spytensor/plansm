@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "current_step": "STEP_COUNT",
+  "invariants": [
+    "Test glob_pattern_check verification type"
+  ],
+  "steps": [
+    {
+      "id": "STEP_PASS",
+      "objective": "Test passing case - all files match pattern",
+      "status": "VERIFIED",
+      "depends_on": [],
+      "verify": [
+        {
+          "type": "glob_pattern_check",
+          "glob": "fixtures/test-files/file[123].txt",
+          "pattern": "TEST_PATTERN",
+          "expect": {
+            "min_count": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "STEP_FAIL",
+      "objective": "Test failing case - some files missing pattern",
+      "status": "FAILED",
+      "depends_on": [],
+      "verify": [
+        {
+          "type": "glob_pattern_check",
+          "glob": "fixtures/test-files/*.txt",
+          "pattern": "TEST_PATTERN",
+          "expect": {
+            "min_count": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": "STEP_COUNT",
+      "objective": "Test count validation",
+      "status": "VERIFIED",
+      "depends_on": [],
+      "verify": [
+        {
+          "type": "glob_pattern_check",
+          "glob": "fixtures/test-files/file[123].txt",
+          "pattern": "Module:",
+          "expect": {
+            "exact_count": 3
+          }
+        }
+      ]
+    }
+  ]
+}

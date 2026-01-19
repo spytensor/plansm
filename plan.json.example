@@ -29,6 +29,22 @@
           }
         }
       ]
+    },
+    {
+      "id": "STEP_002",
+      "objective": "Example: Verify all shell scripts have proper headers",
+      "status": "PENDING",
+      "depends_on": ["STEP_001"],
+      "verify": [
+        {
+          "type": "glob_pattern_check",
+          "glob": "skills/plansm/scripts/*.sh",
+          "pattern": "#!/bin/bash",
+          "expect": {
+            "min_count": 3
+          }
+        }
+      ]
     }
   ]
 }

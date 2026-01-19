@@ -80,6 +80,9 @@ verify_rule() {
         http)
             verify_http "$rule_json"
             ;;
+        glob_pattern_check)
+            verify_glob_pattern_check "$rule_json"
+            ;;
         *)
             echo "❌ Unknown rule type: $rule_type"
             return 1
@@ -163,6 +166,77 @@ verify_http() {
         return 0
     else
         echo "✗ http: $url (status=$status, expected=$expect_status)"
+        return 1
+    fi
+}
+
+# Verify glob_pattern_check rule
+verify_glob_pattern_check() {
+    local rule_json="$1"
+    local glob=$(echo "$rule_json" | jq -r '.glob')
+    local pattern=$(echo "$rule_json" | jq -r '.pattern')
+    local min_count=$(echo "$rule_json" | jq -r '.expect.min_count // "null"')
+    local max_count=$(echo "$rule_json" | jq -r '.expect.max_count // "null"')
+    local exact_count=$(echo "$rule_json" | jq -r '.expect.exact_count // "null"')
+
+    # Find all files matching glob
+    local files=()
+    while IFS= read -r -d '' file; do
+        files+=("$file")
+    done < <(find . -path "./$glob" -type f -print0 2>/dev/null)
+
+    if [ ${#files[@]} -eq 0 ]; then
+        echo "✗ glob_pattern_check: no files match glob '$glob'"
+        return 1
+    fi
+
+    # Check each file for pattern
+    local matched_files=()
+    local missing_files=()
+
+    for file in "${files[@]}"; do
+        if grep -E -q "$pattern" "$file" 2>/dev/null; then
+            matched_files+=("$file")
+        else
+            missing_files+=("$file")
+        fi
+    done
+
+    local matched_count=${#matched_files[@]}
+    local total_count=${#files[@]}
+
+    # Validate count expectations
+    local count_ok=1
+    local count_msg=""
+
+    if [ "$exact_count" != "null" ]; then
+        if [ "$matched_count" -ne "$exact_count" ]; then
+            count_ok=0
+            count_msg=" (expected exactly $exact_count, got $matched_count)"
+        fi
+    else
+        if [ "$min_count" != "null" ] && [ "$matched_count" -lt "$min_count" ]; then
+            count_ok=0
+            count_msg=" (expected at least $min_count, got $matched_count)"
+        fi
+        if [ "$max_count" != "null" ] && [ "$matched_count" -gt "$max_count" ]; then
+            count_ok=0
+            count_msg=" (expected at most $max_count, got $matched_count)"
+        fi
+    fi
+
+    # Report result
+    if [ "$count_ok" -eq 1 ] && [ ${#missing_files[@]} -eq 0 ]; then
+        echo "✓ glob_pattern_check: $glob (pattern: $pattern, matched: $matched_count/$total_count)"
+        return 0
+    else
+        echo "✗ glob_pattern_check: $glob (pattern: $pattern, matched: $matched_count/$total_count)$count_msg"
+        if [ ${#missing_files[@]} -gt 0 ]; then
+            echo "  Files missing pattern:"
+            for file in "${missing_files[@]}"; do
+                echo "    - $file"
+            done
+        fi
         return 1
     fi
 }

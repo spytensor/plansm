@@ -1,0 +1,4 @@
+# Test File 4 - Missing Pattern
+Module: file4
+Purpose: Testing glob_pattern_check failure case
+This file intentionally does NOT contain the required pattern.
