@@ -1,260 +1,29 @@
 {
   "version": 1,
-  "current_step": "STEP_009",
+  "current_step": "STEP_001",
   "invariants": [
     "Do not mark VERIFIED without running verification.",
     "Only work on current_step unless explicitly unlocked.",
-    "Test each step before advancing.",
-    "Ensure skill still works after each deletion."
+    "Test each step before advancing."
   ],
   "steps": [
     {
       "id": "STEP_001",
-      "objective": "Delete Go CLI source code (cmd/ and internal/)",
+      "objective": "Example: Verify skill structure is intact",
       "status": "VERIFIED",
       "depends_on": [],
       "verify": [
         {
-          "type": "command",
-          "cmd": "test ! -d cmd",
-          "expect": {
-            "exit_code": 0
-          }
-        },
-        {
-          "type": "command",
-          "cmd": "test ! -d internal",
-          "expect": {
-            "exit_code": 0
-          }
-        },
-        {
           "type": "file_exists",
           "file": "skills/plansm/SKILL.md"
-        }
-      ]
-    },
-    {
-      "id": "STEP_002",
-      "objective": "Delete Go module files (go.mod and plansm binary)",
-      "status": "VERIFIED",
-      "depends_on": [
-        "STEP_001"
-      ],
-      "verify": [
-        {
-          "type": "command",
-          "cmd": "test ! -f go.mod",
-          "expect": {
-            "exit_code": 0
-          }
-        },
-        {
-          "type": "command",
-          "cmd": "test ! -f plansm",
-          "expect": {
-            "exit_code": 0
-          }
         },
         {
           "type": "file_exists",
           "file": "skills/plansm/scripts/verify.sh"
-        }
-      ]
-    },
-    {
-      "id": "STEP_003",
-      "objective": "Delete obsolete documentation (CLAUDE_USAGE.md and skill-requirements.md)",
-      "status": "VERIFIED",
-      "depends_on": [
-        "STEP_002"
-      ],
-      "verify": [
-        {
-          "type": "command",
-          "cmd": "test ! -f CLAUDE_USAGE.md",
-          "expect": {
-            "exit_code": 0
-          }
-        },
-        {
-          "type": "command",
-          "cmd": "test ! -f docs/skill-requirements.md",
-          "expect": {
-            "exit_code": 0
-          }
-        },
-        {
-          "type": "file_exists",
-          "file": "skills/plansm/references/verification-rules.md"
-        }
-      ]
-    },
-    {
-      "id": "STEP_004",
-      "objective": "Test that skill verification still works after cleanup",
-      "status": "VERIFIED",
-      "depends_on": [
-        "STEP_003"
-      ],
-      "verify": [
-        {
-          "type": "command",
-          "cmd": "bash skills/plansm/scripts/fsm.sh status",
-          "expect": {
-            "exit_code": 0
-          }
-        },
-        {
-          "type": "command",
-          "cmd": "bash skills/plansm/scripts/verify.sh --help",
-          "expect": {
-            "exit_code": 0
-          }
-        },
-        {
-          "type": "command",
-          "cmd": "bash skills/plansm/scripts/parse-plan.sh plan.json current_step | grep -q 'STEP_004'",
-          "expect": {
-            "exit_code": 0
-          }
-        }
-      ]
-    },
-    {
-      "id": "STEP_005",
-      "objective": "Update .gitignore to remove Go-related entries",
-      "status": "VERIFIED",
-      "depends_on": [
-        "STEP_004"
-      ],
-      "verify": [
-        {
-          "type": "command",
-          "cmd": "grep -q '^# Go' .gitignore",
-          "expect": {
-            "exit_code": 1
-          }
-        },
-        {
-          "type": "file_exists",
-          "file": ".gitignore"
-        }
-      ]
-    },
-    {
-      "id": "STEP_006",
-      "objective": "Update README to remove CLI references",
-      "status": "VERIFIED",
-      "depends_on": [
-        "STEP_005"
-      ],
-      "verify": [
-        {
-          "type": "command",
-          "cmd": "grep -i 'CLI Commands' README.md",
-          "expect": {
-            "exit_code": 1
-          }
-        },
-        {
-          "type": "command",
-          "cmd": "grep -i 'plansm init\\|plansm status\\|plansm verify' README.md",
-          "expect": {
-            "exit_code": 1
-          }
-        },
-        {
-          "type": "file_contains",
-          "file": "README.md",
-          "pattern": "/plansm"
-        }
-      ]
-    },
-    {
-      "id": "STEP_007",
-      "objective": "Update CI/CD to remove Go build steps",
-      "status": "VERIFIED",
-      "depends_on": [
-        "STEP_006"
-      ],
-      "verify": [
-        {
-          "type": "command",
-          "cmd": "grep -r 'go build\\|go test\\|go-version' .github/workflows/",
-          "expect": {
-            "exit_code": 1
-          }
-        },
-        {
-          "type": "file_exists",
-          "file": ".github/workflows/ci.yml"
-        }
-      ]
-    },
-    {
-      "id": "STEP_008",
-      "objective": "Final verification - skill is self-contained and working",
-      "status": "VERIFIED",
-      "depends_on": [
-        "STEP_007"
-      ],
-      "verify": [
-        {
-          "type": "command",
-          "cmd": "test -f skills/plansm/SKILL.md",
-          "expect": {
-            "exit_code": 0
-          }
-        },
-        {
-          "type": "command",
-          "cmd": "test -d skills/plansm/scripts",
-          "expect": {
-            "exit_code": 0
-          }
         },
         {
           "type": "command",
           "cmd": "test -d skills/plansm/references",
-          "expect": {
-            "exit_code": 0
-          }
-        },
-        {
-          "type": "command",
-          "cmd": "test -d skills/plansm/templates",
-          "expect": {
-            "exit_code": 0
-          }
-        },
-        {
-          "type": "command",
-          "cmd": "bash skills/plansm/scripts/fsm.sh status | grep -q 'STEP_008'",
-          "expect": {
-            "exit_code": 0
-          }
-        }
-      ]
-    },
-    {
-      "id": "STEP_009",
-      "objective": "Commit cleanup with comprehensive message",
-      "status": "PENDING",
-      "depends_on": [
-        "STEP_008"
-      ],
-      "verify": [
-        {
-          "type": "command",
-          "cmd": "git log -1 --pretty=%B | grep -i 'cleanup\\|remove\\|delete'",
-          "expect": {
-            "exit_code": 0
-          }
-        },
-        {
-          "type": "command",
-          "cmd": "git log -1 --name-status | grep -q '^D.*cmd/'",
           "expect": {
             "exit_code": 0
           }
