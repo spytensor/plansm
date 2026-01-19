@@ -2,7 +2,6 @@
 
 [![CI](https://github.com/spytensor/plansm/workflows/CI/badge.svg)](https://github.com/spytensor/plansm/actions)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Go Report Card](https://goreportcard.com/badge/github.com/spytensor/plansm)](https://goreportcard.com/report/github.com/spytensor/plansm)
 
 **plansm** turns "planning" into a **machine-verifiable state machine**, preventing LLMs from claiming completion without proof.
 
@@ -12,9 +11,9 @@ Traditional LLM planning tools use Markdown checklists that can be marked comple
 
 - Plan is **data** (`plan.json`), not documentation
 - "Done" is **proof-based**: machine-checkable verification rules (tests, commands, file checks)
-- `VERIFIED` status written **only by CLI**, never by LLM or manual edit
+- `VERIFIED` status written **only by verification scripts**, never by LLM or manual edit
 - **Low token cost**: LLM reads only current step, not entire plan
-- **Anti-cheating**: Git hooks + CI gates prevent fake completion
+- **Anti-cheating**: Stop hooks + CI gates prevent fake completion
 
 > Read [Why Markdown Planning Fails](docs/concept.md) for the philosophy.
 
@@ -33,7 +32,7 @@ Traditional LLM planning tools use Markdown checklists that can be marked comple
 LOCKED    → Dependencies not met
 PENDING   → Ready to work on
 FAILED    → Verification failed
-VERIFIED  → Tests/proofs passed (CLI only)
+VERIFIED  → Tests/proofs passed (script-verified only)
 ```
 
 ## Installation
