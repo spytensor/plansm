@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "current_step": "STEP_001",
+  "current_step": "STEP_004",
   "invariants": [
     "Do not mark VERIFIED without running verification.",
     "Only work on current_step unless explicitly unlocked.",
@@ -9,212 +9,83 @@
   "steps": [
     {
       "id": "STEP_001",
-      "title": "Verify /plan command file exists and has correct structure",
-      "status": "FAILED",
-      "description": "Check that plan.md command file was created with proper frontmatter and instructions",
-      "dependencies": [],
-      "verification": {
-        "rules": [
-          {
-            "type": "file_exists",
-            "description": "plan.md command file exists",
-            "path": ".claude-plugin/commands/plan.md"
-          },
-          {
-            "type": "file_contains",
-            "description": "Contains plan generation instructions",
-            "path": ".claude-plugin/commands/plan.md",
-            "expect": {
-              "contains": "Generate plan.json"
-            }
-          },
-          {
-            "type": "file_contains",
-            "description": "Contains auto-execution loop",
-            "path": ".claude-plugin/commands/plan.md",
-            "expect": {
-              "contains": "Auto-Execution Loop"
-            }
-          },
-          {
-            "type": "file_contains",
-            "description": "Contains all 4 verification rule types",
-            "path": ".claude-plugin/commands/plan.md",
-            "expect": {
-              "contains": "file_exists"
-            }
-          }
-        ]
-      }
+      "objective": "Verify /plan command uses correct schema",
+      "status": "VERIFIED",
+      "depends_on": [],
+      "verify": [
+        {
+          "type": "file_contains",
+          "file": ".claude-plugin/commands/plan.md",
+          "pattern": "\"objective\":"
+        },
+        {
+          "type": "file_contains",
+          "file": ".claude-plugin/commands/plan.md",
+          "pattern": "\"verify\":"
+        },
+        {
+          "type": "file_contains",
+          "file": ".claude-plugin/commands/plan.md",
+          "pattern": "\"depends_on\":"
+        }
+      ]
     },
     {
       "id": "STEP_002",
-      "title": "Verify pwork.md and pnext.md were updated for auto-execution",
-      "status": "PENDING",
-      "description": "Check that existing commands now include auto-execution instructions",
-      "dependencies": [
+      "objective": "Verify README uses correct schema",
+      "status": "VERIFIED",
+      "depends_on": [
         "STEP_001"
       ],
-      "verification": {
-        "rules": [
-          {
-            "type": "file_contains",
-            "description": "pwork.md mentions subagents",
-            "path": ".claude-plugin/commands/pwork.md",
-            "expect": {
-              "contains": "subagent"
-            }
-          },
-          {
-            "type": "file_contains",
-            "description": "pnext.md has auto-continue instruction",
-            "path": ".claude-plugin/commands/pnext.md",
-            "expect": {
-              "contains": "IMMEDIATELY continue"
-            }
-          },
-          {
-            "type": "file_contains",
-            "description": "pnext.md warns not to wait",
-            "path": ".claude-plugin/commands/pnext.md",
-            "expect": {
-              "contains": "don't wait for user input"
-            }
-          }
-        ]
-      }
+      "verify": [
+        {
+          "type": "file_contains",
+          "file": "README.md",
+          "pattern": "\"objective\":.*\"Implement login API\""
+        },
+        {
+          "type": "file_contains",
+          "file": "README.md",
+          "pattern": "\"verify\":"
+        }
+      ]
     },
     {
       "id": "STEP_003",
-      "title": "Verify README.md emphasizes automated workflow",
-      "status": "PENDING",
-      "description": "Check that README now promotes automated workflow as primary approach",
-      "dependencies": [
+      "objective": "Verify claude-code.md uses correct schema",
+      "status": "VERIFIED",
+      "depends_on": [
         "STEP_002"
       ],
-      "verification": {
-        "rules": [
-          {
-            "type": "file_contains",
-            "description": "README has Automated Workflow section",
-            "path": "README.md",
-            "expect": {
-              "contains": "Automated Workflow (Recommended)"
-            }
-          },
-          {
-            "type": "file_contains",
-            "description": "README mentions /plan command",
-            "path": "README.md",
-            "expect": {
-              "contains": "/plan"
-            }
-          },
-          {
-            "type": "file_contains",
-            "description": "README says users don't write plan.json manually",
-            "path": "README.md",
-            "expect": {
-              "contains": "don't write plan.json manually"
-            }
-          }
-        ]
-      }
+      "verify": [
+        {
+          "type": "file_contains",
+          "file": "docs/claude-code.md",
+          "pattern": "\"objective\":.*\"Setup Express server\""
+        },
+        {
+          "type": "file_contains",
+          "file": "docs/claude-code.md",
+          "pattern": "\"file\":.*\"src/server.js\""
+        }
+      ]
     },
     {
       "id": "STEP_004",
-      "title": "Verify claude-code.md documents automated mode",
-      "status": "PENDING",
-      "description": "Check that documentation shows automated workflow examples",
-      "dependencies": [
+      "objective": "Verify changes are committed",
+      "status": "VERIFIED",
+      "depends_on": [
         "STEP_003"
       ],
-      "verification": {
-        "rules": [
-          {
-            "type": "file_contains",
-            "description": "Has Automated Mode section",
-            "path": "docs/claude-code.md",
-            "expect": {
-              "contains": "Automated Mode (Recommended)"
-            }
-          },
-          {
-            "type": "file_contains",
-            "description": "Shows example of automated execution",
-            "path": "docs/claude-code.md",
-            "expect": {
-              "contains": "Claude will **automatically**"
-            }
-          },
-          {
-            "type": "file_contains",
-            "description": "Explains users don't need to intervene",
-            "path": "docs/claude-code.md",
-            "expect": {
-              "contains": "You don't need to"
-            }
+      "verify": [
+        {
+          "type": "command",
+          "cmd": "git log -1 --pretty=%B | grep -i 'schema'",
+          "expect": {
+            "exit_code": 0
           }
-        ]
-      }
-    },
-    {
-      "id": "STEP_005",
-      "title": "Verify all changes are committed to git",
-      "status": "PENDING",
-      "description": "Check that all automated workflow changes are in git history",
-      "dependencies": [
-        "STEP_004"
-      ],
-      "verification": {
-        "rules": [
-          {
-            "type": "command",
-            "description": "Git working directory is clean (excluding plan.json)",
-            "cmd": "git diff --exit-code -- ':!plan.json'",
-            "expect": {
-              "exit_code": 0
-            }
-          },
-          {
-            "type": "command",
-            "description": "Latest commit mentions automated workflow",
-            "cmd": "git log -1 --pretty=%B | grep -i 'automated'",
-            "expect": {
-              "exit_code": 0
-            }
-          }
-        ]
-      }
-    },
-    {
-      "id": "STEP_006",
-      "title": "Verify shell scripts can still be executed",
-      "status": "PENDING",
-      "description": "Sanity check that core verification scripts still work",
-      "dependencies": [
-        "STEP_005"
-      ],
-      "verification": {
-        "rules": [
-          {
-            "type": "command",
-            "description": "fsm.sh status works",
-            "cmd": "bash .claude-plugin/scripts/fsm.sh status",
-            "expect": {
-              "exit_code": 0
-            }
-          },
-          {
-            "type": "command",
-            "description": "fsm.sh current works",
-            "cmd": "bash .claude-plugin/scripts/fsm.sh current",
-            "expect": {
-              "exit_code": 0
-            }
-          }
-        ]
-      }
+        }
+      ]
     }
   ]
 }
