@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "current_step": "STEP_001",
+  "invariants": [
+    "Do not mark VERIFIED without running verification.",
+    "Only work on current_step unless explicitly unlocked.",
+    "Test each step before advancing."
+  ],
+  "steps": [
+    {
+      "id": "STEP_001",
+      "objective": "Brief description of what to accomplish",
+      "status": "PENDING",
+      "depends_on": [],
+      "verify": [
+        {
+          "type": "command",
+          "cmd": "echo 'Replace with actual verification command'",
+          "expect": {
+            "exit_code": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "STEP_002",
+      "objective": "Another task that depends on STEP_001",
+      "status": "LOCKED",
+      "depends_on": ["STEP_001"],
+      "verify": [
+        {
+          "type": "file_exists",
+          "file": "path/to/expected/file"
+        },
+        {
+          "type": "file_contains",
+          "file": "path/to/file",
+          "pattern": "expected content pattern"
+        }
+      ]
+    },
+    {
+      "id": "STEP_003",
+      "objective": "Final step",
+      "status": "LOCKED",
+      "depends_on": ["STEP_002"],
+      "verify": [
+        {
+          "type": "command",
+          "cmd": "npm test",
+          "expect": {
+            "exit_code": 0
+          }
+        }
+      ]
+    }
+  ]
+}

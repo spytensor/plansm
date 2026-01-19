@@ -138,17 +138,6 @@ Verify rule types:
 - `file_contains` (regex)
 - `http` (GET by default; checks status code)
 
-## CLI Commands
-
-```bash
-plansm init [--claude]              # Create plan.json and Claude integration
-plansm status                       # Show all steps and statuses
-plansm current [--json]             # Show current step (low token)
-plansm verify --current|--all       # Run verification proofs
-plansm advance                      # Move to next step (if verified)
-plansm doctor                       # Health check
-```
-
 ## Documentation
 
 - [Quick Start Guide](docs/quickstart.md) — Get started in 5 minutes
@@ -158,16 +147,11 @@ plansm doctor                       # Health check
 
 ## Anti-Cheating Features
 
-1. **State Machine Enforcement**: Only CLI can set VERIFIED status
-2. **Git Pre-commit Hook**: Warns on manual status edits
-3. **CI Verification**: `plansm verify --all` in CI/CD
+1. **State Machine Enforcement**: Only verification scripts can set VERIFIED status
+2. **Stop Hook**: Claude Code hook prevents stopping until all steps verified
+3. **CI Verification**: `bash skills/plansm/scripts/verify.sh --all` in CI/CD
 4. **Audit Trail**: All state changes tracked in git history
 5. **JSON Schema**: Structure validation
-
-Install git hooks:
-```bash
-./scripts/install-hooks.sh
-```
 
 ## Contributing
 
@@ -177,9 +161,13 @@ Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md).
 ```bash
 git clone https://github.com/spytensor/plansm.git
 cd plansm
-go mod download
-go build -o plansm ./cmd/plansm
-go test ./...
+
+# Test the skill locally
+cp -r skills/plansm ~/.claude/skills/
+# Then use /plansm in Claude Code
+
+# Test verification scripts
+bash skills/plansm/scripts/verify.sh --help
 ```
 
 ## Roadmap

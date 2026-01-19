@@ -8,119 +8,45 @@ on:
 
 jobs:
   test:
-    name: Test
+    name: Test Skill
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        go: ['1.21', '1.22', '1.23']
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: ${{ matrix.go }}
-
-    - name: Verify go.mod
-      run: go mod verify
-
-    - name: Build
-      run: go build -v ./cmd/plansm
-
-    - name: Run tests
-      run: go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
-
-    - name: Upload coverage
-      if: matrix.os == 'ubuntu-latest' && matrix.go == '1.23'
-      uses: codecov/codecov-action@v4
-      with:
-        file: ./coverage.out
-        flags: unittests
-        name: codecov-umbrella
-
-    - name: Run go vet
-      run: go vet ./...
-
-    - name: Run staticcheck
-      uses: dominikh/staticcheck-action@v1
-      with:
-        version: "latest"
-        install-go: false
-
-  integration:
-    name: Integration Tests
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: '1.23'
-
-    - name: Build
-      run: go build -o plansm ./cmd/plansm
-
-    - name: Test init command
+    - name: Install jq
       run: |
-        mkdir -p /tmp/test-plansm
-        cd /tmp/test-plansm
-        $GITHUB_WORKSPACE/plansm init
-        test -f plan.json
-        cat plan.json
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          sudo apt-get update && sudo apt-get install -y jq
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+          brew install jq
+        fi
 
-    - name: Test init with Claude
+    - name: Test verification scripts
       run: |
-        mkdir -p /tmp/test-plansm-claude
-        cd /tmp/test-plansm-claude
-        $GITHUB_WORKSPACE/plansm init --claude
-        test -f plan.json
-        test -d .claude/commands
-        test -f .claude/commands/pwork.md
-        test -f .claude/commands/pverify.md
-        test -d .claude-plugin
-        test -f .claude-plugin/plugin.json
+        bash skills/plansm/scripts/verify.sh --help
+        bash skills/plansm/scripts/fsm.sh status
+        bash skills/plansm/scripts/parse-plan.sh plan.json version
 
-    - name: Test verify and advance workflow
+    - name: Verify current plan step
       run: |
-        cd /tmp/test-plansm
-        $GITHUB_WORKSPACE/plansm status
-        $GITHUB_WORKSPACE/plansm current
-        $GITHUB_WORKSPACE/plansm verify --current
-        $GITHUB_WORKSPACE/plansm advance
-        $GITHUB_WORKSPACE/plansm status
+        bash skills/plansm/scripts/verify.sh --current
 
-    - name: Test doctor command
+    - name: Check skill structure
       run: |
-        cd /tmp/test-plansm-claude
-        $GITHUB_WORKSPACE/plansm doctor
+        test -f skills/plansm/SKILL.md
+        test -d skills/plansm/scripts
+        test -d skills/plansm/references
+        test -d skills/plansm/templates
+        test -f skills/plansm/templates/plan-template.json
 
-    - name: Test JSON output
+    - name: Validate plan.json schema
       run: |
-        cd /tmp/test-plansm
-        $GITHUB_WORKSPACE/plansm current --json
-        $GITHUB_WORKSPACE/plansm verify --current --json
-
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: '1.23'
-
-    - name: Run golangci-lint
-      uses: golangci/golangci-lint-action@v4
-      with:
-        version: latest
-        args: --timeout=5m
+        jq empty plan.json
+        jq -e '.version' plan.json
+        jq -e '.current_step' plan.json
+        jq -e '.steps | length > 0' plan.json

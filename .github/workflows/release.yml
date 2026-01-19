@@ -19,37 +19,23 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: '1.23'
+    - name: Install jq
+      run: sudo apt-get update && sudo apt-get install -y jq
 
-    - name: Run tests
-      run: go test -v ./...
-
-    - name: Build binaries
+    - name: Run verification tests
       run: |
-        # Linux amd64
-        GOOS=linux GOARCH=amd64 go build -o plansm-linux-amd64 -ldflags="-s -w" ./cmd/plansm
+        bash skills/plansm/scripts/verify.sh --help
+        bash skills/plansm/scripts/fsm.sh status
+        test -f skills/plansm/SKILL.md
 
-        # Linux arm64
-        GOOS=linux GOARCH=arm64 go build -o plansm-linux-arm64 -ldflags="-s -w" ./cmd/plansm
-
-        # macOS amd64
-        GOOS=darwin GOARCH=amd64 go build -o plansm-darwin-amd64 -ldflags="-s -w" ./cmd/plansm
-
-        # macOS arm64
-        GOOS=darwin GOARCH=arm64 go build -o plansm-darwin-arm64 -ldflags="-s -w" ./cmd/plansm
-
-        # Windows amd64
-        GOOS=windows GOARCH=amd64 go build -o plansm-windows-amd64.exe -ldflags="-s -w" ./cmd/plansm
-
-        # Windows arm64
-        GOOS=windows GOARCH=arm64 go build -o plansm-windows-arm64.exe -ldflags="-s -w" ./cmd/plansm
-
-    - name: Generate checksums
+    - name: Package skill
       run: |
-        sha256sum plansm-* > checksums.txt
+        # Create release package
+        tar -czf plansm-skill.tar.gz skills/plansm/
+        zip -r plansm-skill.zip skills/plansm/
+
+        # Generate checksums
+        sha256sum plansm-skill.tar.gz plansm-skill.zip > checksums.txt
         cat checksums.txt
 
     - name: Extract release notes
@@ -60,6 +46,17 @@ jobs:
           awk '/^## / {if (p) exit; if ($2 == "'${GITHUB_REF#refs/tags/}'") p=1; next} p' CHANGELOG.md > release-notes.txt
         else
           echo "Release ${GITHUB_REF#refs/tags/}" > release-notes.txt
+          echo "" >> release-notes.txt
+          echo "## Installation" >> release-notes.txt
+          echo "" >> release-notes.txt
+          echo "\`\`\`bash" >> release-notes.txt
+          echo "# Download and extract" >> release-notes.txt
+          echo "wget https://github.com/spytensor/plansm/releases/download/${GITHUB_REF#refs/tags/}/plansm-skill.tar.gz" >> release-notes.txt
+          echo "tar -xzf plansm-skill.tar.gz" >> release-notes.txt
+          echo "" >> release-notes.txt
+          echo "# Copy to Claude Code skills directory" >> release-notes.txt
+          echo "cp -r skills/plansm ~/.claude/skills/" >> release-notes.txt
+          echo "\`\`\`" >> release-notes.txt
         fi
 
     - name: Create Release
@@ -67,12 +64,8 @@ jobs:
       with:
         body_path: release-notes.txt
         files: |
-          plansm-linux-amd64
-          plansm-linux-arm64
-          plansm-darwin-amd64
-          plansm-darwin-arm64
-          plansm-windows-amd64.exe
-          plansm-windows-arm64.exe
+          plansm-skill.tar.gz
+          plansm-skill.zip
           checksums.txt
         draft: false
         prerelease: false
