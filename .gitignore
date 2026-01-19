@@ -14,8 +14,10 @@ tmp/
 temp/
 *.tmp
 
-# Claude Code settings (local only)
+# Claude Code settings and local installations (local only)
+.claude/settings.json
 .claude/settings.local.json
+.claude/skills/
 
 # plansm working plans (user-generated)
 plan.json
